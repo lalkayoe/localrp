@@ -30,6 +30,7 @@ export default function ChatPage() {
   const [editingTitle, setEditingTitle] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!loaded) loadChats();
@@ -53,6 +54,13 @@ export default function ChatPage() {
     const behavior = streaming.active ? "auto" : "smooth";
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior });
   }, [messages, streaming.content]);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+  }, [draft]);
 
   function handleScroll() {
     const el = scrollRef.current;
@@ -248,6 +256,7 @@ export default function ChatPage() {
         <div className="composer">
           <div className="composer-inner">
             <textarea
+              ref={textareaRef}
               className="composer-textarea"
               rows={1}
               value={draft}

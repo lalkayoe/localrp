@@ -182,7 +182,22 @@ async def send_message(
                         )
                     )
                 ).scalar() or 0
-                if unprocessed_count >= every_n:
+                total_assistant_count = (
+                    await write_db.execute(
+                        select(func.count()).select_from(Message).where(
+                            Message.chat_id == chat.id,
+                            Message.role == MessageRole.assistant,
+                            Message.is_deleted == False,  # noqa: E712
+                        )
+                    )
+                ).scalar() or 0
+                # The very first exchange gets extracted right away regardless of the
+                # batch threshold — opening scene-setting (world rules, the character's
+                # backstory, initial relationships) is exactly the kind of thing that's
+                # most costly to lose, and it's cheap to run once per chat rather than
+                # making it wait for every_n messages to accumulate.
+                is_first_exchange = total_assistant_count == 1
+                if unprocessed_count >= every_n or is_first_exchange:
                     background_tasks.add_task(_run_extraction_task, chat.id)
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")

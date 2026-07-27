@@ -13,6 +13,7 @@ from app.services.auth.deps import get_current_user
 from app.services.memory.prompt_builder import build_prompt
 from app.services.providers.factory import create_provider
 from app.services.settings_store import get_effective_settings
+from app.utils.tokens import count_tokens
 from app.core.config import settings as app_settings
 
 router = APIRouter(tags=["timeline-search-settings"])
@@ -126,7 +127,8 @@ async def inspect_prompt(chat_id: str, payload: dict, user: User = Depends(get_c
     context_size = cfg.get("context_size", eff["default_context_size"])
     max_tokens = cfg.get("max_tokens", eff["default_max_tokens"])
 
-    built = await build_prompt(db, chat, payload.get("draft_message", ""), context_size, max_tokens)
+    draft_message = payload.get("draft_message", "")
+    built = await build_prompt(db, chat, draft_message, context_size, max_tokens)
 
     blocks = [
         PromptInspectorBlock(
@@ -140,4 +142,20 @@ async def inspect_prompt(chat_id: str, payload: dict, user: User = Depends(get_c
         )
         for b in built.blocks
     ]
-    return PromptInspectorResponse(blocks=blocks, total_tokens=built.total_tokens)
+
+    # build_prompt only uses the draft to score which memory to pull in — it
+    # never actually appears in any block, because in the real chat flow the
+    # message is already persisted (and therefore already part of the
+    # conversation_history window) by the time build_prompt runs. Here it
+    # isn't persisted, so without this it would silently vanish: you'd type
+    # a long draft and see it contribute 0 tokens and 0 visible content,
+    # which is confusing when trying to preview what will actually be sent.
+    draft_tokens = count_tokens(draft_message)
+    blocks.append(PromptInspectorBlock(
+        label="draft_message (this turn's user message)",
+        content=draft_message,
+        token_count=draft_tokens,
+        selected_entities=[],
+    ))
+
+    return PromptInspectorResponse(blocks=blocks, total_tokens=built.total_tokens + draft_tokens)

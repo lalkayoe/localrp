@@ -153,6 +153,8 @@
 .message-row.user .message-bubble {
   background: var(--accent-dim);
   color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Assistant replies use the prose serif + the "memory thread": a hairline
