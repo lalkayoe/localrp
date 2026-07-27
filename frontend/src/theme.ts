@@ -2,7 +2,7 @@
  * Chat appearance themes. Each theme is a `data-theme` value that switches
  * which CSS custom-property block in styles/themes.css is active — nothing
  * else in the app needs to know about themes, since every component already
- * reads colors through the --bg-*/--accent*/--text-* variables (see
+ * reads colors through the --bg-, --accent, --text- variables (see
  * styles/theme.css). Adding a theme is just adding another block there plus
  * an entry to THEMES below for the picker UI.
  *
