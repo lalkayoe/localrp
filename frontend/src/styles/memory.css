@@ -1,0 +1,120 @@
+.memory-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.memory-toolbar {
+  height: 52px;
+  border-bottom: 1px solid var(--border-hair);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.memory-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 280px 1fr;
+  min-height: 0;
+}
+
+@media (max-width: 980px) {
+  .memory-body {
+    grid-template-columns: 140px 220px 1fr;
+  }
+}
+
+.memory-types {
+  border-right: 1px solid var(--border-hair);
+  padding: 10px 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.memory-type-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  text-align: left;
+}
+.memory-type-item:hover {
+  background: var(--bg-raised-hover);
+  color: var(--text-primary);
+}
+.memory-type-item.active {
+  background: var(--bg-raised);
+  color: var(--accent-text);
+}
+.memory-type-count {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.memory-list-pane {
+  border-right: 1px solid var(--border-hair);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.memory-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-hair);
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.memory-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.memory-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-hair);
+  cursor: pointer;
+  font-size: 13px;
+  gap: 8px;
+}
+.memory-list-row:hover {
+  background: var(--bg-raised-hover);
+}
+.memory-list-row.active {
+  background: var(--bg-raised);
+}
+.memory-list-row.disabled .memory-row-label {
+  color: var(--text-faint);
+  text-decoration: line-through;
+}
+.memory-row-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.memory-row-badges {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.memory-detail-pane {
+  padding: 18px 22px 40px;
+  overflow-y: auto;
+}

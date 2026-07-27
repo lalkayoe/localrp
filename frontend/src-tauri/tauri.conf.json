@@ -1,0 +1,38 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "LocalRP",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": { "open": true },
+      "http": { "all": true, "scope": ["http://localhost:*", "http://127.0.0.1:*"] }
+    },
+    "bundle": {
+      "active": true,
+      "identifier": "com.localrp.app",
+      "icon": ["icons/icon.png"],
+      "targets": "all"
+    },
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:* ws://localhost:*"
+    },
+    "windows": [
+      {
+        "title": "LocalRP",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 720,
+        "minHeight": 480,
+        "resizable": true
+      }
+    ]
+  }
+}
