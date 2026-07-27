@@ -107,7 +107,4 @@ Goal, Promise, Secret, Relationship, StoryArc, SceneSummary, ArcSummary)
 - Tauri sidecar в dev-версии запускает системный `python3` напрямую;
   для дистрибутива backend стоит собрать через PyInstaller и подключить
   как `externalBin`.
-- Фронтенд не пересобирался в этой среде через `npm run build` (нет доступа
-  к npm-реестру в песочнице) — синтаксис и типы проверены вручную и через
-  `tsc`-совместимые правила, но перед продакшн-сборкой стоит прогнать
-  `npm install && npm run build` локально.
+ https://imgur.com/a/ngzdzTV фото UI и его тем
