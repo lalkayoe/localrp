@@ -255,6 +255,7 @@ async def _apply_extraction(
         db.add(loc)
         await db.flush()
         location_cache[nl.name.lower()] = loc
+        await _attach_tags(db, chat_id, EntityType.location, loc.id, result.tags)
 
     # --- items ---
     for ni in result.new_items:
@@ -267,7 +268,10 @@ async def _apply_extraction(
             if ni.description:
                 existing_item.description = ni.description
             continue
-        db.add(Item(chat_id=chat_id, name=ni.name, description=ni.description, owner_character_id=owner.id if owner else None))
+        item = Item(chat_id=chat_id, name=ni.name, description=ni.description, owner_character_id=owner.id if owner else None)
+        db.add(item)
+        await db.flush()
+        await _attach_tags(db, chat_id, EntityType.item, item.id, result.tags)
 
     # --- organizations ---
     for no in result.new_organizations:
@@ -276,7 +280,10 @@ async def _apply_extraction(
             if no.description:
                 existing_org.description = no.description
             continue
-        db.add(Organization(chat_id=chat_id, name=no.name, description=no.description))
+        org = Organization(chat_id=chat_id, name=no.name, description=no.description)
+        db.add(org)
+        await db.flush()
+        await _attach_tags(db, chat_id, EntityType.organization, org.id, result.tags)
 
     # --- events ---
     for ne in result.new_events:
@@ -296,25 +303,34 @@ async def _apply_extraction(
     # --- facts ---
     for nf in result.new_facts:
         subject_char = await _find_character_by_name(db, chat_id, nf.subject) if nf.subject else None
-        db.add(Fact(
+        fact = Fact(
             chat_id=chat_id, content=nf.content,
             subject_entity_type=EntityType.character if subject_char else None,
             subject_entity_id=subject_char.id if subject_char else None,
-        ))
+        )
+        db.add(fact)
+        await db.flush()
+        await _attach_tags(db, chat_id, EntityType.fact, fact.id, result.tags)
 
     # --- goals / promises / secrets ---
     for ng in result.new_goals:
         char = await _find_character_by_name(db, chat_id, ng.character) if ng.character else None
-        db.add(Goal(chat_id=chat_id, character_id=char.id if char else None, description=ng.description))
+        goal = Goal(chat_id=chat_id, character_id=char.id if char else None, description=ng.description)
+        db.add(goal)
+        await db.flush()
+        await _attach_tags(db, chat_id, EntityType.goal, goal.id, result.tags)
 
     for np_ in result.new_promises:
         made_by = await _find_character_by_name(db, chat_id, np_.made_by) if np_.made_by else None
         made_to = await _find_character_by_name(db, chat_id, np_.made_to) if np_.made_to else None
-        db.add(Promise(
+        promise = Promise(
             chat_id=chat_id, description=np_.description,
             made_by_character_id=made_by.id if made_by else None,
             made_to_character_id=made_to.id if made_to else None,
-        ))
+        )
+        db.add(promise)
+        await db.flush()
+        await _attach_tags(db, chat_id, EntityType.promise, promise.id, result.tags)
 
     for ns in result.new_secrets:
         owner = await _find_character_by_name(db, chat_id, ns.owner) if ns.owner else None
@@ -323,10 +339,13 @@ async def _apply_extraction(
             c = await _find_character_by_name(db, chat_id, name)
             if c:
                 known_ids.append(c.id)
-        db.add(Secret(
+        secret = Secret(
             chat_id=chat_id, owner_character_id=owner.id if owner else None,
             description=ns.description, known_by_character_ids=known_ids,
-        ))
+        )
+        db.add(secret)
+        await db.flush()
+        await _attach_tags(db, chat_id, EntityType.secret, secret.id, result.tags)
 
     # --- story arcs ---
     for sa in result.story_arc_updates:
