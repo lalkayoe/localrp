@@ -90,6 +90,7 @@ export interface AppSettings {
   default_max_tokens: number;
   memory_retrieval_mode: string;
   memory_extraction_enabled: boolean;
+  ui_theme?: string;
   [key: string]: unknown;
 }
 

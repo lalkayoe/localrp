@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SettingsApi } from "../api/endpoints";
 import type { AppSettings } from "../api/types";
+import { THEMES, applyTheme, getStoredTheme, storeTheme } from "../theme";
 import "../styles/settings.css";
 
 const PROVIDERS = [
@@ -15,8 +16,24 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    SettingsApi.get().then(setSettings);
+    SettingsApi.get().then((s) => {
+      setSettings(s);
+      // The backend is the source of truth once fetched (so the choice follows
+      // you across devices) — reconcile it with whatever was applied instantly
+      // from localStorage on page load, in case they differ.
+      const backendTheme = typeof s.ui_theme === "string" ? s.ui_theme : null;
+      if (backendTheme && backendTheme !== getStoredTheme()) {
+        applyTheme(backendTheme);
+        storeTheme(backendTheme);
+      }
+    });
   }, []);
+
+  function selectTheme(themeId: string) {
+    applyTheme(themeId);
+    storeTheme(themeId);
+    commit("ui_theme", themeId);
+  }
 
   async function commit(key: string, value: unknown) {
     if (!settings) return;
@@ -32,6 +49,28 @@ export default function SettingsPage() {
     <div className="settings-page scrollbar-subtle">
       <h2>Настройки</h2>
       {saved && <div className="settings-saved-toast">Сохранено</div>}
+
+      <section className="settings-section">
+        <h3>Внешний вид</h3>
+        <div className="theme-swatch-grid">
+          {THEMES.map((t) => {
+            const active = (typeof settings.ui_theme === "string" ? settings.ui_theme : "graphite") === t.id;
+            return (
+              <button
+                key={t.id}
+                className={`theme-swatch ${active ? "active" : ""}`}
+                onClick={() => selectTheme(t.id)}
+                title={t.name}
+              >
+                <span className="theme-swatch-preview" style={{ background: t.swatch[0] }}>
+                  <span className="theme-swatch-dot" style={{ background: t.swatch[1] }} />
+                </span>
+                <span className="theme-swatch-name">{t.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="settings-section">
         <h3>Провайдер модели</h3>

@@ -1,0 +1,74 @@
+/*
+ * Theme variants. Each block overrides the CSS custom properties defined
+ * in theme.css's :root — every component already reads colors through
+ * those variables, so switching data-theme on <html> is enough to reskin
+ * the whole app, including the chat background (see --chat-bg-image on
+ * .chat-layout in chat.css).
+ *
+ * Applied via src/theme.ts (applyTheme sets document.documentElement's
+ * data-theme attribute); picked from the "Внешний вид" section in Settings.
+ */
+
+/* --- Void Black: true black, minimal, OLED-friendly --- */
+[data-theme="void-black"] {
+  --bg-void: #000000;
+  --bg-base: #050505;
+  --bg-raised: #0d0d0f;
+  --bg-raised-hover: #17171a;
+  --border-hair: #232326;
+  --text-primary: #f2f2f4;
+  --text-secondary: #9a9aa3;
+  --text-faint: #5c5c62;
+  --accent: #8a8a8a;
+  --accent-dim: #3a3a3d;
+  --accent-text: #e6e6e9;
+  --canon-amber: #d8a25e;
+  --danger: #e0605a;
+  --success: #5ec98a;
+  --chat-bg-image: none;
+}
+
+/* --- Neon Grid: cyberpunk — near-black with a faint perspective grid and
+   a soft glow, cyan/magenta accents. This is the "futuristic" one. --- */
+[data-theme="neon-grid"] {
+  --bg-void: #05060a;
+  --bg-base: #0a0c12;
+  --bg-raised: #10131c;
+  --bg-raised-hover: #171b28;
+  --border-hair: #1e2536;
+  --text-primary: #eafeff;
+  --text-secondary: #7fd8e0;
+  --text-faint: #445266;
+  --accent: #00e5ff;
+  --accent-dim: #0a5f6e;
+  --accent-text: #baf8ff;
+  --canon-amber: #ffb84d;
+  --danger: #ff3d5a;
+  --success: #39ffb0;
+  --chat-bg-image:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 229, 255, 0.10), transparent 60%),
+    radial-gradient(ellipse 50% 30% at 100% 100%, rgba(255, 61, 122, 0.07), transparent 65%),
+    linear-gradient(rgba(0, 229, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.055) 1px, transparent 1px);
+  --chat-bg-size: 100% 100%, 100% 100%, 42px 42px, 42px 42px;
+}
+
+/* --- Crimson Noir: near-black with a deep red accent, warmer contrast --- */
+[data-theme="crimson-noir"] {
+  --bg-void: #0c0507;
+  --bg-base: #120809;
+  --bg-raised: #1a0e10;
+  --bg-raised-hover: #241417;
+  --border-hair: #331a1d;
+  --text-primary: #f5e6e8;
+  --text-secondary: #b28c8f;
+  --text-faint: #6b4f52;
+  --accent: #ff3d5a;
+  --accent-dim: #7a1f2c;
+  --accent-text: #ffc9d1;
+  --canon-amber: #d8a25e;
+  --danger: #ff5c5c;
+  --success: #5ec98a;
+  --chat-bg-image: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 61, 90, 0.08), transparent 65%);
+  --chat-bg-size: 100% 100%;
+}

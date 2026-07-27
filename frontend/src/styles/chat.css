@@ -2,7 +2,11 @@
   display: grid;
   grid-template-columns: 280px 1fr;
   height: 100%;
-  background: var(--bg-void);
+  background-color: var(--bg-void);
+  background-image: var(--chat-bg-image, none);
+  background-size: var(--chat-bg-size, auto);
+  background-position: var(--chat-bg-position, center);
+  background-attachment: fixed;
   position: relative;
 }
 
