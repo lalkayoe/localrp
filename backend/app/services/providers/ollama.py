@@ -49,6 +49,14 @@ class OllamaProvider(LLMProvider):
             ],
             "stream": False,
             "options": options,
+            # Ollama's native reasoning-model support honors this to skip the
+            # hidden <think> pass entirely, which matters a lot here: this
+            # extraction call has a fixed token budget, and thinking tokens
+            # would eat into it before the model ever gets to the JSON.
+            # Ignored harmlessly by older Ollama versions / non-reasoning
+            # models. strip_reasoning() in extractor.py is the fallback for
+            # whatever gets through anyway.
+            "think": False,
         }
         async with httpx.AsyncClient(timeout=settings.provider_request_timeout_seconds) as client:
             resp = await client.post(f"{self.api_base}/api/chat", json=payload)

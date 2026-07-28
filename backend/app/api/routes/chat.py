@@ -25,6 +25,7 @@ from app.services.providers.base import GenerationParams
 from app.services.providers.factory import create_provider
 from app.services.settings_store import get_effective_settings
 from app.utils.tokens import count_tokens
+from app.utils.reasoning import ThinkTagStripper
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
@@ -145,13 +146,22 @@ async def send_message(
 
     async def event_stream():
         full_text = ""
+        think_filter = ThinkTagStripper()
         try:
             async for delta in provider.stream_chat(built.messages):
-                full_text += delta
-                yield f"data: {json.dumps({'delta': delta})}\n\n"
+                visible = think_filter.feed(delta)
+                if not visible:
+                    continue  # entirely reasoning content (or a buffered partial tag) — nothing to show yet
+                full_text += visible
+                yield f"data: {json.dumps({'delta': visible})}\n\n"
         except Exception as exc:  # provider unreachable, model error, etc.
             yield f"data: {json.dumps({'error': str(exc)})}\n\n"
             return
+
+        trailing = think_filter.flush()
+        if trailing:
+            full_text += trailing
+            yield f"data: {json.dumps({'delta': trailing})}\n\n"
 
         # persist assistant message in its own session (request-scoped db
         # session may be closed by the time the generator finishes on some

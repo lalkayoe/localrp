@@ -25,6 +25,7 @@ from app.services.memory.extraction_prompt import EXTRACTION_SYSTEM_PROMPT, buil
 from app.services.memory.arc_rollup import maybe_roll_up_arc_summary
 from app.services.memory.schemas import ExtractionResult
 from app.services.providers.base import LLMProvider
+from app.utils.reasoning import strip_reasoning
 
 logger = logging.getLogger(__name__)
 
@@ -87,16 +88,19 @@ async def _attach_tags(db: AsyncSession, chat_id: str, entity_type: EntityType, 
 
 
 def _parse_json_response(raw_text: str) -> dict:
-    """Model output should be raw JSON, but strip markdown fences defensively."""
-    text = raw_text.strip()
+    """Model output should be raw JSON, but strip a leading <think>...</think>
+    reasoning block (reasoning-capable local models routinely emit one even
+    when told to output raw JSON only) and markdown fences defensively."""
+    text = strip_reasoning(raw_text).strip()
     if text.startswith("```"):
         text = text.strip("`")
         if text.startswith("json"):
             text = text[4:]
+    text = text.strip()
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        logger.warning("Memory extraction returned non-JSON output, skipping this pass")
+        logger.warning("Memory extraction returned non-JSON output, skipping this pass. Raw: %s", raw_text[:1000])
         return {}
 
 

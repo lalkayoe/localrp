@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.models.models import ArcSummary, SceneSummary, StoryArc
 from app.services.providers.base import LLMProvider
+from app.utils.reasoning import strip_reasoning
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ async def maybe_roll_up_arc_summary(db: AsyncSession, provider: LLMProvider, cha
         logger.warning("Arc summary rollup request to the model provider failed, will retry next batch", exc_info=True)
         return
 
-    raw_summary = raw_summary.strip()
+    raw_summary = strip_reasoning(raw_summary).strip()
     if not raw_summary:
         return
 
